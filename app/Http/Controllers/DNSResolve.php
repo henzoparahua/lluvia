@@ -6,15 +6,25 @@ use Illuminate\Http\Request;
 
 class DNSResolve extends Controller
 {
-    //
     public function ResolveHostName(string $domain)
     {
-        $resolveIp = dns_get_record($domain);
+        $records = dns_get_record($domain);
 
-        if ($resolveIp !== $domain) {
-            return $domain . " yep yep -> " . $resolveIp;
+        $ips = [];
+        foreach ($records as $record) {
+            if (isset($record['ip'])) {
+                $ips[] = $record['ip'] . " (IPv4)";
+            } elseif (isset($record['ipv6'])) {
+                $ips[] = $record['ipv6'] . " (IPv6)";
+            }
+        }
+
+
+        if (!empty($ips)) {
+            return $domain . ' yep yep -> ' . implode(", ", $ips);
         } else {
-            return $domain . " not not -> " . $resolveIp;
+            return $domain . ' not not -> ' . implode(", ", $ips);
         }
     }
 }
+;
